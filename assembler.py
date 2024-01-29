@@ -14,7 +14,7 @@ def decToBin_2complement(decimal_number, num_bits=8):
 
     return binary_string
 
-class assembler: 
+class Assembler: 
     def __init__(self, assembly_program="assembly_program.txt"):
         print("Assembler starting...")
 

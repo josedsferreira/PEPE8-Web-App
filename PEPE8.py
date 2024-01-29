@@ -14,12 +14,12 @@ class pepe8:
         self.haltFlag = False
 
         self.instructions = [] #Instruction memory with 16 bits for each instruction and operand
-        self.data = [0b00000000] * 255 #Data memory with 255 positions (FF in hex)
+        self.data = [0] * 256 #Data memory with 256 positions (FF in hex)
         self.program = [] #Program in assembly strings for interface
 
 
     def clock(self):
-        if self.PC < self.instructions.length:
+        if self.PC < len(self.instructions):
             line = self.instructions[self.PC]
         else:
             print("Out of program")
@@ -27,8 +27,11 @@ class pepe8:
             return
 
         self.PC += 1
-        instruction = int(line[:8])
-        operand = int(line[8:])
+        print(self.PC)
+        instruction = int(line[:8], 2)
+        operand = int(line[8:], 2)
+        
+        """ print("Instruction: " + str(instruction) + " Operand: " + str(operand)) """
 
         match instruction:
             case 0:
@@ -69,12 +72,23 @@ class pepe8:
 
     def loadProgram(self, assembly_program = "assembly_program.txt", machine_code = "machine_code.txt"):
         
-        with open(assembly_program, 'r') as in_file:
-            for line in in_file:
+        startFound = False
+        with open(assembly_program, 'r') as assembly, open(machine_code, 'r') as machine_code:
+            for line in assembly:
+                if "START:" in line.upper() or "INICIO:" in line.upper() or startFound:
+                    startFound = True
+                else:
+                    continue
                 line = line.strip()
                 if not line:
                     continue
                 self.program.append(line)
+            for line in machine_code:
+                line = line.strip()
+                if not line:
+                    continue
+                self.instructions.append(line)
+        
 
     def reset(self):
         self.PC = 0b00000000
@@ -86,6 +100,9 @@ class pepe8:
         self.SEL_B = False
         self.WR = False
         self.haltFlag = False
+        self.program = []
+        self.instructions = []
+        self.loadProgram()
 
     #Instruction set
     def LD(self, operand):
@@ -114,6 +131,8 @@ class pepe8:
         #self.SEL_A = True #no effect
         #self.SEL_B = True
         self.WR = True
+        """ print("Stored " + str(self.A) + " in " + str(operand))
+        print(self.data[operand]) """
 
     def ADD(self, operand):
         self.A += operand

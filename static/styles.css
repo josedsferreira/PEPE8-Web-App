@@ -1,0 +1,31 @@
+/* styles.css */
+
+/* Style for two columns */
+.container {
+    display: grid;
+    grid-template-columns: 40% auto;
+    grid-template-rows: auto;
+}
+
+/* Style for each column */
+/* .column {
+    max-width: 50%;
+} */
+
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+/* styles.css */
+
+/* Remove the dot and add vertical margin to list items */
+li {
+    list-style-type: none;
+    margin-bottom: 5px; /* Adjust the value to control the vertical space */
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEPE8 Emulator</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+
+        $(document).ready(function() {
+
+            function runClock() {
+                $.ajax({
+                    type: 'POST',
+                    url: '/run_clock',
+                    success: function(data) {
+                        updateVariableList(data);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+
+            function reset() {
+                $.ajax({
+                    type: 'POST',
+                    url: '/reset_cpu',
+                    success: function(data) {
+                        updateVariableList(data);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+
+            function updateVariableList(data) {
+                // Create a formatted list of variables
+                var variableList = '<ul>' +
+                    '<li>PC: ' + data.PC + '</li>' +
+                    '<li>A: ' + data.A + '</li>' +
+                    '<li>SEL_PC: ' + data.SEL_PC + '</li>' +
+                    '<li>SEL_ALU: ' + data.SEL_ALU + '</li>' +
+                    '<li>ESCR_A: ' + data.ESCR_A + '</li>' +
+                    '<li>SEL_A: ' + data.SEL_A + '</li>' +
+                    '<li>SEL_B: ' + data.SEL_B + '</li>' +
+                    '<li>WR: ' + data.WR + '</li>' +
+                    '</ul>';
+
+                var dataRam = '<ul> ';
+                for (var i = 0; i < data.data.length; i++) {
+                    if (i == 0) {
+                        dataRam += '<li>' + i.toString(16).toUpperCase().padStart(2, '0') + 'H: ';
+                    }
+                    if (i % 16 == 0 && i != 0) {
+                        dataRam += '</li><li>' + i.toString(16).toUpperCase().padStart(2, '0') + 'H: ';
+                    }
+                    dataRam += data.data[i].toString(16).toUpperCase().padStart(2, '0') + ', ';
+                }
+                dataRam += '</li></ul>';
+
+                var instructionList = '<ul> ';
+                for ( i = 0; i < data.program.length; i++) {
+                    if (i == data.PC) {
+                        instructionList += '<li style="color: red;">' + data.program[i] + '</li>';
+                        continue;
+                    }
+                    instructionList += '<li>' + data.program[i] + '</li>';
+                }
+                instructionList += '</ul>';
+
+                // Update the content on the page
+                $('#variable-list').html(variableList);
+                $('#data-ram').html(dataRam);
+                $('#instruction-list').html(instructionList);
+            }
+
+
+            reset();
+
+            // Ensure the "Clock" and "Reset" buttons trigger the update
+            $('#clock-button').click(function(event) {
+                event.preventDefault();
+                runClock();  // Correct function name
+            });
+
+            $('#reset-button').click(function(event) {
+                event.preventDefault();
+                reset();
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <h2>PEPE8 Processor</h2>
+    <div class="container">
+        <div class="column">
+            <h3>Memory</h3>
+            <div id="data-ram"></div>
+        </div>
+        <div class="column" id="right-column">
+            <div id="variable-list"></div>
+            <div id="instruction-list"></div>
+        </div>
+        <div class="column" id="controls">
+            <h3>Controls</h3>
+            <form action="{{ url_for('run_clock') }}" method="post">
+                <button type="submit" name="action" value="clock" id="clock-button">Clock</button>
+            </form>
+            <form action="{{ url_for('reset_cpu') }}" method="post">
+                <button type="submit" name="action" value="reset" id="reset-button">Reset</button>
+            </form>
+        <h3><a href="josedsferreira.github.io">josedsferreira.github.io</a></h3>
+        </div>
+    </div>
+
+</body>
+</html>
